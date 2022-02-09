@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+{ echo "host replication ${POSTGRES_CDC_USER}_CDC 0.0.0.0/0 trust"; } >> "$PGDATA/pg_hba.conf"
+
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    BEGIN TRANSACTION;
+    CREATE USER $POSTGRES_CDC_USER ENCRYPTED PASSWORD '$POSTGRES_PASSWORD';
+    GRANT select on outbox to $POSTGRES_CDC_USER;
+    ALTER USER $POSTGRES_CDC_USER REPLICATION;
+    COMMIT;
+EOSQL

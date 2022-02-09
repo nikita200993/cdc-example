@@ -1,0 +1,46 @@
+version: '3'
+
+volumes:
+  pgdata:
+
+services:
+  zookeeper:
+    image: debezium/zookeeper:1.8
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+  kafka:
+    image: debezium/kafka:1.8
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+  postgres:
+    build:
+      context: docker/postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_DB=example
+      - POSTGRES_CDC_USER=cdc
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ${PWD}/db/init:/docker-entrypoint-initdb.d
+  connect:
+    image: debezium/connect:1.8
+    ports:
+      - "8083:8083"
+    links:
+      - kafka
+      - postgres
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
