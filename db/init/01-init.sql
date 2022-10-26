@@ -36,7 +36,7 @@ create table all_data (
     created date not null,
     modified timestamp not null,
     price numeric(4, 2) not null,
-    comment text
+    commentfield text
 );
 
 create table dep_data (

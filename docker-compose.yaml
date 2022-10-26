@@ -29,26 +29,28 @@ services:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
-#  postgres:
-#    build:
-#      context: docker/postgres
-#    ports:
-#      - "5432:5432"
-#    environment:
-#      - POSTGRES_USER=user
-#      - POSTGRES_PASSWORD=user
-#      - POSTGRES_DB=example
-#      - POSTGRES_CDC_USER=cdc
-#    volumes:
-#      - pgdata:/var/lib/postgresql/data
-#      - ${PWD}/db/init:/docker-entrypoint-initdb.d
+  postgres:
+    image: postgres:10
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_DB=astreya
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ${PWD}/db/init:/docker-entrypoint-initdb.d
 
   kafka-connect:
-    image: debezium/connect:1.8
+    image: romanyuknr/connect
+    build:
+      context: docker/connect
     ports:
       - "8083:8083"
     depends_on:
       - kafka
+      - postgres
+      - oracle
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1
@@ -59,8 +61,6 @@ services:
   kafka-connect-ui:
     image: landoop/kafka-connect-ui:latest
     network_mode: bridge
-    extra_hosts:
-      - "kafka-connect:host-gateway"
     ports:
       - "8000:8000"
     depends_on:
