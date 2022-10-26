@@ -20,7 +20,7 @@ create table cashflow.dep_data (
     all_data_id number not null,
     name varchar2(256),
     PRIMARY KEY(id),
-    foreign key(all_data_id) references (cashflow.all_data.id)
+    foreign key(all_data_id) references cashflow.all_data(id)
 );
 
 insert into all_data (name, created, modified, price, comment)
