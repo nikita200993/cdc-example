@@ -45,6 +45,8 @@ services:
     image: romanyuknr/connect
     build:
       context: docker/connect
+    volumes:
+      - ./mount/connect/config:/kafka/config:rw
     ports:
       - "8083:8083"
     depends_on:

@@ -63,5 +63,5 @@ GRANT SELECT ON V_$TRANSACTION TO migration;
 create table migration.signal (
     id varchar2(100) primary key,
     type varchar2(256) not null,
-    data varchar2(1024) not null
+    data varchar2(1024)
 );
